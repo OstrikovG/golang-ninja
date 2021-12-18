@@ -1,48 +1,34 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"reflect"
+	"github.com/zhashkevych/scheduler"
+	"os"
+	"os/signal"
+	"time"
 )
 
-var a, b, k = 1, 2, 3
-
 func main() {
-	//sdfdsfdsfdsfdsf
-	/*	dsfdsf
-		dsddsf
-		sdfdsf*/
-	var message string
-	var number int
-	var float_number float32
-	var b bool
-	var message_byte = []byte("1а3a")
-	var a rune = 'a'
-	e, c, d := 1, 2, 3
+	ctx := context.Background()
 
-	fmt.Println(reflect.TypeOf(message))
-	fmt.Println(message)
-	fmt.Println(number)
-	fmt.Println(float_number)
-	fmt.Println(reflect.TypeOf(float_number))
-	fmt.Println(b)
-	fmt.Println(message_byte)
-	fmt.Println(reflect.TypeOf(message_byte))
-	fmt.Println(a)
-	fmt.Println(e, c, d)
-	d, c = c, d
-	fmt.Println(e, c, d)
-	d, _ = 10, 12
-	fmt.Println(e, c, d)
-	print()
-	fmt.Println(k)
+	worker := scheduler.NewScheduler()
+	worker.Add(ctx, parseSubscriptionData, time.Second*5)
+	worker.Add(ctx, sendStatistics, time.Second*10)
 
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, os.Interrupt)
+
+	<-quit
+	worker.Stop()
 }
 
-func print() {
-	e, c := 1, 2
+func parseSubscriptionData(ctx context.Context) {
+	time.Sleep(time.Second * 1)
+	fmt.Printf("subscription parsed successfuly at %s\n", time.Now().String())
+}
 
-	fmt.Println(e, c)
-	fmt.Println(k)
-	k = 12
+func sendStatistics(ctx context.Context) {
+	time.Sleep(time.Second * 5)
+	fmt.Printf("statistics sent at %s\n", time.Now().String())
 }
